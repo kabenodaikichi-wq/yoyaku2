@@ -591,27 +591,96 @@ document.getElementById('modal-save').addEventListener('click',()=>{
   }
 });
 
-/* ===== レシート印刷 ===== */
+/* ===== ePOS SDK 印刷 ===== */
+const PRINTER_IP = '192.168.128.111';  // ← プリンターのIPアドレス
+const PRINTER_PORT = 8008;             // ePOS-Print XML ポート
+
 function printReceipt(r){
-  const area=document.getElementById('receipt-area');
-  area.innerHTML=`
-    <div class="rp-shop">${SHOP_NAME}</div>
-    <div class="rp-label">ご予約確認票</div>
-    <div class="rp-time">${r.time}</div>
-    <div class="rp-name">${addSama(r.name)}</div>
-    <div class="rp-persons">${r.persons}名様</div>
-    <hr class="rp-hr">
-    <div class="rp-row">
-      <span class="rp-key">日付</span>
-      <span class="rp-val">${formatDate(r.date)}</span>
-    </div>
-    ${r.phone?`<div class="rp-row"><span class="rp-key">電話</span><span class="rp-val">${formatPhone(r.phone)}</span></div>`:''}
-    ${r.memo?`<hr class="rp-hr"><div class="rp-memo">📝 ${r.memo}</div>`:''}
-    <hr class="rp-hr">
-    <div class="rp-footer">ご来店をお待ちしております</div>
-    <div class="rp-issued">発行：${nowStr()}</div>
-  `;
-  try { window.print(); } catch(e) { console.warn('印刷スキップ（プレビュー環境）:', e); }
+  // ePOS-Print XML を組み立てる
+  const xml = buildEposXml(r);
+  sendToPrinter(xml);
+}
+
+function buildEposXml(r){
+  const lines = [];
+  const NL = '\x0a'; // LF
+
+  // センタリング・大文字でヘッダー
+  lines.push(`<text align="center"/>`);
+  lines.push(`<text font="font_b"/>`);
+  lines.push(`<text>--- ${SHOP_NAME} ---${NL}</text>`);
+  lines.push(`<text>ご予約確認票${NL}</text>`);
+  lines.push(`<text>--------------------------------${NL}</text>`);
+
+  // 時刻（大きく）
+  lines.push(`<text width="2" height="2"/>`);
+  lines.push(`<text>${r.time}${NL}</text>`);
+  lines.push(`<text width="1" height="1"/>`);
+
+  // 名前・人数
+  lines.push(`<text width="1" height="2"/>`);
+  lines.push(`<text>${addSama(r.name)}${NL}</text>`);
+  lines.push(`<text width="1" height="1"/>`);
+  lines.push(`<text>${r.persons}名様${NL}</text>`);
+  lines.push(`<text>--------------------------------${NL}</text>`);
+
+  // 日付
+  lines.push(`<text align="left"/>`);
+  lines.push(`<text>日付: ${formatDate(r.date)}${NL}</text>`);
+
+  // 電話
+  if(r.phone){
+    lines.push(`<text>電話: ${formatPhone(r.phone)}${NL}</text>`);
+  }
+
+  // メモ
+  if(r.memo){
+    lines.push(`<text>--------------------------------${NL}</text>`);
+    lines.push(`<text>メモ: ${r.memo}${NL}</text>`);
+  }
+
+  lines.push(`<text>--------------------------------${NL}</text>`);
+  lines.push(`<text align="center"/>`);
+  lines.push(`<text>ご来店をお待ちしております${NL}</text>`);
+  lines.push(`<text>発行: ${nowStr()}${NL}</text>`);
+  lines.push(`<text>${NL}${NL}${NL}</text>`);
+
+  // カット
+  lines.push(`<cut type="feed"/>`);
+
+  return `<?xml version="1.0" encoding="utf-8"?>
+<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
+${lines.join('\n')}
+</epos-print>`;
+}
+
+async function sendToPrinter(xml){
+  const url = `http://${PRINTER_IP}:${PRINTER_PORT}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`;
+  const soap = `<?xml version="1.0" encoding="utf-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body>
+    <epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
+      ${xml}
+    </epos-print>
+  </s:Body>
+</s:Envelope>`;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        'SOAPAction': '""'
+      },
+      body: soap
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    console.log('印刷成功');
+  } catch(e) {
+    console.warn('ePOS印刷エラー:', e);
+    // フォールバック：window.print()
+    try { window.print(); } catch(e2) { console.warn('印刷スキップ:', e2); }
+  }
 }
 
 /* 通知 */
