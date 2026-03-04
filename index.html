@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>予約管理</title>
   <style>
-/* ===== Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -26,8 +25,9 @@
   --radius: 12px;
 }
 
-html, body {
-  height: 100%;
+html, body { height: 100%; }
+
+body {
   overflow: hidden;
   font-family: var(--font-main);
   background: var(--bg);
@@ -36,13 +36,16 @@ html, body {
   touch-action: manipulation;
 }
 
+/* position:fixed でローカルファイル・GitHub Pages両対応 */
 #app {
   display: grid;
   grid-template-columns: 36% 64%;
-  height: 100vh;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   gap: 0;
 }
 
+/* ===== 左カラム ===== */
 #left-col {
   background: var(--left-bg);
   border-right: 1px solid var(--border);
@@ -69,7 +72,6 @@ html, body {
   color: #fff;
   padding: 10px 14px;
 }
-
 #cal-title { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; }
 
 .nav-btn {
@@ -84,16 +86,17 @@ html, body {
   background: #fbe9e7; border-bottom: 1px solid var(--border);
 }
 #cal-weekdays span {
-  text-align: center; font-size: 0.72rem; font-weight: 700; padding: 6px 0; color: var(--text-light);
+  text-align: center; font-size: 0.72rem; font-weight: 700;
+  padding: 6px 0; color: var(--text-light);
 }
 #cal-weekdays span:first-child { color: var(--accent); }
-#cal-weekdays span:last-child { color: #2980b9; }
+#cal-weekdays span:last-child  { color: #2980b9; }
 
-#cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; }
+#cal-days { display: grid; grid-template-columns: repeat(7, 1fr); }
 
 .cal-day {
-  min-height: 52px; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; cursor: pointer; border: 1px solid transparent;
+  min-height: 52px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
   transition: background 0.1s; position: relative; padding: 4px 2px; gap: 2px;
 }
 .cal-day:active { background: #f0e0d8; }
@@ -103,11 +106,12 @@ html, body {
   width: 34px; height: 34px; display: flex; align-items: center;
   justify-content: center; border-radius: 50%;
 }
-.cal-day.today .cal-day-num { background: var(--today-bg); border: 2px solid var(--accent2); font-weight: 700; }
+.cal-day.today    .cal-day-num { background: var(--today-bg); border: 2px solid var(--accent2); font-weight: 700; }
 .cal-day.selected .cal-day-num { background: var(--selected-bg); color: var(--selected-text); font-weight: 700; }
-.cal-day.sun .cal-day-num { color: var(--accent); }
-.cal-day.sat .cal-day-num { color: #2980b9; }
+.cal-day.sun      .cal-day-num { color: var(--accent); }
+.cal-day.sat      .cal-day-num { color: #2980b9; }
 .cal-day.other-month .cal-day-num { color: #ccc; }
+
 .cal-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 .cal-day.other-month .cal-dot { background: #ccc; }
 
@@ -125,15 +129,16 @@ html, body {
   resize: none; background: transparent; line-height: 1.6;
 }
 
-#right-col { background: var(--right-bg); display: flex; flex-direction: column; overflow: hidden; }
-
+/* ===== 右カラム ===== */
+#right-col {
+  background: var(--right-bg); display: flex; flex-direction: column; overflow: hidden;
+}
 #right-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px 12px; background: var(--right-bg);
   border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 #selected-date-label { font-size: 1.3rem; font-weight: 700; color: var(--text); }
-
 #header-btns { display: flex; gap: 10px; align-items: center; }
 
 #add-btn {
@@ -164,10 +169,10 @@ html, body {
 .res-card:nth-child(5n+4) { background: #fff0f5; border-top-color: #c0392b; }
 .res-card:nth-child(5n+5) { background: #f5f0ff; border-top-color: #8e44ad; }
 
-.card-time { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
-.card-name { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+.card-time  { font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1; }
+.card-name  { font-size: 1.15rem; font-weight: 700; color: var(--text); }
 .card-phone { font-size: 0.9rem; color: var(--text-light); }
-.card-memo { font-size: 0.85rem; color: #555; margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-memo  { font-size: 0.85rem; color: #555; margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-edit-hint { position: absolute; top: 10px; right: 12px; font-size: 0.7rem; color: rgba(0,0,0,0.25); }
 
 #no-reservations {
@@ -175,7 +180,7 @@ html, body {
   color: var(--text-light); font-size: 1rem; padding: 40px 20px;
 }
 
-/* Modal */
+/* ===== モーダル ===== */
 #modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
   display: flex; align-items: center; justify-content: center;
@@ -203,91 +208,43 @@ html, body {
   font-weight: 700; cursor: pointer; min-height: 48px; transition: background 0.15s, transform 0.1s;
 }
 #modal-btns button:active { transform: scale(0.97); }
-#modal-cancel { background: #eee; color: var(--text); }
-#modal-cancel:active { background: #ddd; }
-#modal-save { background: var(--accent); color: #fff; }
-#modal-save:active { background: #a93226; }
-#modal-delete { background: #fff0f0; color: var(--accent); border: 1.5px solid var(--accent); }
-#modal-delete:active { background: #fdd; }
-#modal-print { background: #1a6e3c; color: #fff; }
-#modal-print:active { background: #145530; }
+#modal-cancel  { background: #eee; color: var(--text); }
+#modal-cancel:active  { background: #ddd; }
+#modal-save    { background: var(--accent); color: #fff; }
+#modal-save:active    { background: #a93226; }
+#modal-delete  { background: #fff0f0; color: var(--accent); border: 1.5px solid var(--accent); }
+#modal-delete:active  { background: #fdd; }
+#modal-print   { background: #1a6e3c; color: #fff; }
+#modal-print:active   { background: #145530; }
 
 .hidden { display: none !important; }
 
-#cards-area::-webkit-scrollbar { width: 6px; }
+#cards-area::-webkit-scrollbar  { width: 6px; }
 #cards-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-#memo-area::-webkit-scrollbar { width: 4px; }
-#memo-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+#memo-area::-webkit-scrollbar   { width: 4px; }
+#memo-area::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 2px; }
 
-/* ===== レシート印刷用（画面では非表示） ===== */
-#receipt-area { display: none; }
-
-@media print {
-  #app, #modal-overlay { display: none !important; }
-
-  #receipt-area {
-    display: block !important;
-    width: 72mm;
-    margin: 0;
-    padding: 4mm 3mm;
-    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-    font-size: 11pt;
-    color: #000;
-    background: #fff;
-  }
-
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
-
-  .rp-shop {
-    text-align: center; font-size: 14pt; font-weight: 900;
-    border-bottom: 2px solid #000; padding-bottom: 3mm;
-    margin-bottom: 2mm; letter-spacing: 0.08em;
-  }
-  .rp-label {
-    text-align: center; font-size: 9pt; color: #555;
-    margin-bottom: 4mm; letter-spacing: 0.05em;
-  }
-  .rp-time {
-    text-align: center; font-size: 34pt; font-weight: 900;
-    letter-spacing: 0.05em; margin: 3mm 0 1mm; line-height: 1;
-  }
-  .rp-name {
-    text-align: center; font-size: 17pt; font-weight: 900; margin-bottom: 1mm;
-  }
-  .rp-persons {
-    text-align: center; font-size: 13pt; font-weight: 700; margin-bottom: 3mm;
-  }
-  .rp-hr { border: none; border-top: 1px dashed #000; margin: 3mm 0; }
-  .rp-row {
-    display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 2mm; gap: 4mm;
-  }
-  .rp-key { font-size: 9pt; color: #444; white-space: nowrap; flex-shrink: 0; }
-  .rp-val { font-size: 11pt; font-weight: 700; text-align: right; word-break: break-all; }
-  .rp-memo {
-    border: 1px solid #000; border-radius: 1.5mm; padding: 2mm 3mm;
-    font-size: 10pt; margin-top: 2mm; white-space: pre-wrap; word-break: break-all;
-  }
-  .rp-footer {
-    text-align: center; font-size: 8.5pt; margin-top: 5mm;
-    padding-top: 3mm; border-top: 1px solid #000;
-  }
-  .rp-issued { text-align: center; font-size: 7.5pt; color: #777; margin-top: 2mm; }
+/* ===== 印刷トースト ===== */
+#print-toast {
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.78); color: #fff; padding: 14px 28px;
+  border-radius: 24px; font-size: 1.05rem; font-weight: 600;
+  z-index: 300; pointer-events: none;
+  transition: opacity 0.35s;
 }
+#print-toast.hidden { display: none; }
   </style>
 </head>
 <body>
 
 <div id="app">
+  <!-- 左カラム -->
   <div id="left-col">
     <div id="calendar-wrap">
       <div id="cal-header">
-        <button id="prev-month" class="nav-btn">‹</button>
+        <button id="prev-month" class="nav-btn">&#x2039;</button>
         <span id="cal-title"></span>
-        <button id="next-month" class="nav-btn">›</button>
+        <button id="next-month" class="nav-btn">&#x203a;</button>
       </div>
       <div id="cal-weekdays">
         <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
@@ -295,11 +252,12 @@ html, body {
       <div id="cal-days"></div>
     </div>
     <div id="memo-wrap">
-      <div id="memo-label">📝 メモ</div>
+      <div id="memo-label">&#128221; メモ</div>
       <textarea id="memo-area" placeholder="この日のメモを入力..."></textarea>
     </div>
   </div>
 
+  <!-- 右カラム -->
   <div id="right-col">
     <div id="right-header">
       <h2 id="selected-date-label">日付を選択してください</h2>
@@ -311,6 +269,7 @@ html, body {
   </div>
 </div>
 
+<!-- モーダル -->
 <div id="modal-overlay" class="hidden">
   <div id="modal">
     <h3 id="modal-title">予約を追加</h3>
@@ -343,26 +302,30 @@ html, body {
       <div id="modal-btns">
         <button type="button" id="modal-cancel">キャンセル</button>
         <button type="button" id="modal-delete" class="hidden">削除</button>
-        <button type="button" id="modal-print" class="hidden">🖨 印刷</button>
+        <button type="button" id="modal-print"  class="hidden">&#128424; 印刷</button>
         <button type="button" id="modal-save">保存</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- 印刷時のみ表示されるレシートエリア -->
-<div id="receipt-area"></div>
+<!-- 印刷トースト -->
+<div id="print-toast" class="hidden">印刷中...</div>
 
 <script>
+/* ===== 設定 ===== */
 const STORAGE_KEY = 'yoyaku_v1';
-const SHOP_NAME = 'ご予約確認';  // ← 店名をここに変更できます
+const SHOP_NAME   = 'ご予約確認';        // 店名
+const PRINTER_IP  = '192.168.128.111';  // プリンターIP（TM-m30II-H）
 
+/* ===== 状態 ===== */
 let state = { reservations: [], memos: {}, customers: {} };
 let selectedDate = todayStr();
-let currentYear = new Date().getFullYear();
+let currentYear  = new Date().getFullYear();
 let currentMonth = new Date().getMonth();
-const notified = {};
+const notified   = {};
 
+/* ===== ユーティリティ ===== */
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -373,43 +336,36 @@ function formatDate(str) {
   const [y,m,d] = str.split('-');
   return `${y}年${parseInt(m)}月${parseInt(d)}日`;
 }
-function formatPhone(phone) {
-  if (!phone) return '';
-  const digits = phone.replace(/\D/g,'');
-  if (digits.length===11) return digits.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3');
-  if (digits.length===10) return digits.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');
-  return phone;
+function formatPhone(p) {
+  if (!p) return '';
+  const d = p.replace(/\D/g,'');
+  if (d.length===11) return d.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3');
+  if (d.length===10) return d.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');
+  return p;
 }
 function addSama(name) {
   if (!name) return '';
   if (name.endsWith('様')||name.endsWith('さま')) return name;
   return name + ' 様';
 }
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-}
+function generateId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function nowStr() {
-  const d = new Date();
+  const d=new Date();
   return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/* ===== ストレージ ===== */
 function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const p = JSON.parse(raw);
-      state.reservations = p.reservations || [];
-      state.memos = p.memos || {};
-      state.customers = p.customers || {};
-    }
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if (raw) { const p=JSON.parse(raw); state.reservations=p.reservations||[]; state.memos=p.memos||{}; state.customers=p.customers||{}; }
   } catch(e) { console.error(e); }
 }
 function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch(e) { console.error(e); }
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); } catch(e) { console.error(e); }
 }
 
-/* カレンダー */
+/* ===== カレンダー ===== */
 function renderCalendar() {
   const year=currentYear, month=currentMonth;
   document.getElementById('cal-title').textContent=`${year}年${month+1}月`;
@@ -420,7 +376,6 @@ function renderCalendar() {
   const datesWithRes=new Set(state.reservations.map(r=>r.date));
   const container=document.getElementById('cal-days');
   container.innerHTML='';
-
   for(let i=firstDay-1;i>=0;i--){
     const d=prevLastDate-i;
     container.appendChild(makeDayCell(d,`${year}-${pad(month)}-${pad(d)}`,'other-month'));
@@ -428,37 +383,33 @@ function renderCalendar() {
   for(let d=1;d<=lastDate;d++){
     const ds=`${year}-${pad(month+1)}-${pad(d)}`;
     const dow=new Date(year,month,d).getDay();
-    const cls=dow===0?'sun':dow===6?'sat':'';
-    const cell=makeDayCell(d,ds,cls);
-    if(ds===today)cell.classList.add('today');
-    if(ds===selectedDate)cell.classList.add('selected');
+    const cell=makeDayCell(d,ds,dow===0?'sun':dow===6?'sat':'');
+    if(ds===today)     cell.classList.add('today');
+    if(ds===selectedDate) cell.classList.add('selected');
     if(datesWithRes.has(ds)){const dot=document.createElement('div');dot.className='cal-dot';cell.appendChild(dot);}
     container.appendChild(cell);
   }
   const rem=(firstDay+lastDate)%7===0?0:7-((firstDay+lastDate)%7);
-  for(let d=1;d<=rem;d++){
-    container.appendChild(makeDayCell(d,`${year}-${pad(month+2)}-${pad(d)}`,'other-month'));
-  }
+  for(let d=1;d<=rem;d++) container.appendChild(makeDayCell(d,`${year}-${pad(month+2)}-${pad(d)}`,'other-month'));
 }
 
-function makeDayCell(d,dateStr,extraClass){
+function makeDayCell(d,dateStr,extraClass) {
   const cell=document.createElement('div');
   cell.className='cal-day'+(extraClass?' '+extraClass:'');
-  cell.dataset.date=dateStr;
   const num=document.createElement('div');num.className='cal-day-num';num.textContent=d;
   cell.appendChild(num);
   cell.addEventListener('click',()=>selectDate(dateStr));
   return cell;
 }
 
-function selectDate(dateStr){
+function selectDate(dateStr) {
   selectedDate=dateStr;
   renderCalendar();renderCards();renderMemo();
   document.getElementById('selected-date-label').textContent=formatDate(dateStr);
 }
 
-/* カード */
-function renderCards(){
+/* ===== カード ===== */
+function renderCards() {
   const area=document.getElementById('cards-area');
   area.innerHTML='';
   const dayRes=state.reservations.filter(r=>r.date===selectedDate).sort((a,b)=>a.time.localeCompare(b.time));
@@ -472,21 +423,21 @@ function renderCards(){
     const time=document.createElement('div');time.className='card-time';time.textContent=r.time;card.appendChild(time);
     const name=document.createElement('div');name.className='card-name';name.textContent=`${r.persons}名 ${addSama(r.name)}`;card.appendChild(name);
     if(r.phone){const ph=document.createElement('div');ph.className='card-phone';ph.textContent=formatPhone(r.phone);card.appendChild(ph);}
-    if(r.memo){const me=document.createElement('div');me.className='card-memo';me.textContent=r.memo;card.appendChild(me);}
+    if(r.memo) {const me=document.createElement('div');me.className='card-memo'; me.textContent=r.memo;card.appendChild(me);}
     card.addEventListener('click',()=>openModal(r.id));
     area.appendChild(card);
   });
 }
 
-/* メモ */
+/* ===== メモ ===== */
 let memoTimer=null;
 function renderMemo(){ document.getElementById('memo-area').value=state.memos[selectedDate]||''; }
 document.getElementById('memo-area').addEventListener('input',()=>{
   clearTimeout(memoTimer);
-  memoTimer=setTimeout(()=>{state.memos[selectedDate]=document.getElementById('memo-area').value;save();},1000);
+  memoTimer=setTimeout(()=>{ state.memos[selectedDate]=document.getElementById('memo-area').value; save(); },1000);
 });
 
-/* モーダル */
+/* ===== モーダル ===== */
 function buildTimeOptions(){
   const sel=document.getElementById('f-time');sel.innerHTML='';
   for(let h=0;h<24;h++) for(let m=0;m<60;m+=30){
@@ -496,16 +447,14 @@ function buildTimeOptions(){
 }
 function buildNameList(){
   const dl=document.getElementById('name-list');dl.innerHTML='';
-  Object.keys(state.customers).sort().forEach(name=>{
-    const opt=document.createElement('option');opt.value=name;dl.appendChild(opt);
-  });
+  Object.keys(state.customers).sort().forEach(n=>{const o=document.createElement('option');o.value=n;dl.appendChild(o);});
 }
 
 function openModal(editId){
   buildTimeOptions();buildNameList();
   document.getElementById('reservation-form').reset();
-  const deleteBtn=document.getElementById('modal-delete');
-  const printBtn=document.getElementById('modal-print');
+  const delBtn=document.getElementById('modal-delete');
+  const prtBtn=document.getElementById('modal-print');
   if(editId){
     const r=state.reservations.find(x=>x.id===editId);if(!r)return;
     document.getElementById('modal-title').textContent='予約を編集';
@@ -516,8 +465,8 @@ function openModal(editId){
     document.getElementById('f-phone').value=r.phone||'';
     document.getElementById('f-persons').value=r.persons;
     document.getElementById('f-memo').value=r.memo||'';
-    deleteBtn.classList.remove('hidden');
-    printBtn.classList.remove('hidden');
+    delBtn.classList.remove('hidden');
+    prtBtn.classList.remove('hidden');
   } else {
     document.getElementById('modal-title').textContent='予約を追加';
     document.getElementById('edit-id').value='';
@@ -526,8 +475,8 @@ function openModal(editId){
     let h=now.getHours(),m=now.getMinutes()<30?30:0;
     if(m===0)h=Math.min(h+1,23);
     document.getElementById('f-time').value=`${pad(h)}:${pad(m)}`;
-    deleteBtn.classList.add('hidden');
-    printBtn.classList.add('hidden');
+    delBtn.classList.add('hidden');
+    prtBtn.classList.add('hidden');
   }
   document.getElementById('modal-overlay').classList.remove('hidden');
   document.getElementById('f-name').focus();
@@ -537,7 +486,7 @@ function closeModal(){ document.getElementById('modal-overlay').classList.add('h
 document.getElementById('add-btn').addEventListener('click',()=>openModal(null));
 document.getElementById('modal-cancel').addEventListener('click',closeModal);
 document.getElementById('modal-overlay').addEventListener('click',(e)=>{
-  if(e.target===document.getElementById('modal-overlay'))closeModal();
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
 });
 document.getElementById('modal-delete').addEventListener('click',()=>{
   const id=document.getElementById('edit-id').value;if(!id)return;
@@ -546,165 +495,126 @@ document.getElementById('modal-delete').addEventListener('click',()=>{
     save();closeModal();renderCalendar();renderCards();
   }
 });
-
-/* 印刷ボタン（編集モーダルから） */
 document.getElementById('modal-print').addEventListener('click',()=>{
   const id=document.getElementById('edit-id').value;if(!id)return;
   const r=state.reservations.find(x=>x.id===id);if(!r)return;
   closeModal();
-  setTimeout(()=>printReceipt(r), 100);
+  setTimeout(()=>printReceipt(r),100);
 });
-
-/* 保存 */
 document.getElementById('modal-save').addEventListener('click',()=>{
-  const id=document.getElementById('edit-id').value;
-  const date=document.getElementById('f-date').value;
-  const time=document.getElementById('f-time').value;
-  const name=document.getElementById('f-name').value.trim();
-  const phone=document.getElementById('f-phone').value.trim();
+  const id    =document.getElementById('edit-id').value;
+  const date  =document.getElementById('f-date').value;
+  const time  =document.getElementById('f-time').value;
+  const name  =document.getElementById('f-name').value.trim();
+  const phone =document.getElementById('f-phone').value.trim();
   const persons=parseInt(document.getElementById('f-persons').value);
-  const memo=document.getElementById('f-memo').value.trim();
+  const memo  =document.getElementById('f-memo').value.trim();
   if(!date||!time||!name){ alert('日付・時刻・お名前は必須です'); return; }
 
-  let savedRes;
   const isNew=!id;
+  let savedRes;
   if(id){
     savedRes=state.reservations.find(x=>x.id===id);
-    if(savedRes){savedRes.date=date;savedRes.time=time;savedRes.name=name;savedRes.phone=phone;savedRes.persons=persons;savedRes.memo=memo;}
+    if(savedRes){ savedRes.date=date;savedRes.time=time;savedRes.name=name;savedRes.phone=phone;savedRes.persons=persons;savedRes.memo=memo; }
   } else {
     savedRes={id:generateId(),date,time,name,phone,persons,memo};
     state.reservations.push(savedRes);
   }
-  if(name)state.customers[name]=true;
-  save();
-  closeModal();
+  if(name) state.customers[name]=true;
+  save();closeModal();
   if(date!==selectedDate){
     selectedDate=date;
     document.getElementById('selected-date-label').textContent=formatDate(date);
     renderMemo();
   }
   renderCalendar();renderCards();
-
-  // 新規登録時は自動印刷（try-catchで保護）
-  if(savedRes && isNew){
-    setTimeout(()=>{ try { printReceipt(savedRes); } catch(e){ console.warn('印刷スキップ:', e); } }, 150);
-  }
+  // 新規登録時は自動印刷
+  if(isNew && savedRes) setTimeout(()=>printReceipt(savedRes),200);
 });
 
-/* ===== ePOS SDK 印刷 ===== */
-const PRINTER_IP = '192.168.128.111';  // ← プリンターのIPアドレス
-const PRINTER_PORT = 8008;             // ePOS-Print XML ポート
-
-function printReceipt(r){
-  // ePOS-Print XML を組み立てる
-  const xml = buildEposXml(r);
-  sendToPrinter(xml);
+/* ===== ePOS-Print 印刷 ===== */
+function showToast(msg, ms=2500){
+  const t=document.getElementById('print-toast');
+  t.textContent=msg; t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'),ms);
 }
 
-function buildEposXml(r){
-  const lines = [];
-  const NL = '\x0a'; // LF
+async function printReceipt(r){
+  showToast('&#128424; 印刷中...',8000);
+  const NL='\x0a';
+  const x=[];
 
-  // センタリング・大文字でヘッダー
-  lines.push(`<text align="center"/>`);
-  lines.push(`<text font="font_b"/>`);
-  lines.push(`<text>--- ${SHOP_NAME} ---${NL}</text>`);
-  lines.push(`<text>ご予約確認票${NL}</text>`);
-  lines.push(`<text>--------------------------------${NL}</text>`);
+  x.push('<text align="center"/>');
+  x.push(`<text>---- ${SHOP_NAME} ----${NL}</text>`);
+  x.push(`<text>ご予約確認票${NL}</text>`);
+  x.push(`<text>--------------------------------${NL}</text>`);
 
-  // 時刻（大きく）
-  lines.push(`<text width="2" height="2"/>`);
-  lines.push(`<text>${r.time}${NL}</text>`);
-  lines.push(`<text width="1" height="1"/>`);
+  // 時刻（2倍角）
+  x.push('<text width="2" height="2" em="true"/>');
+  x.push(`<text>${r.time}${NL}</text>`);
+  x.push('<text width="1" height="1" em="false"/>');
 
-  // 名前・人数
-  lines.push(`<text width="1" height="2"/>`);
-  lines.push(`<text>${addSama(r.name)}${NL}</text>`);
-  lines.push(`<text width="1" height="1"/>`);
-  lines.push(`<text>${r.persons}名様${NL}</text>`);
-  lines.push(`<text>--------------------------------${NL}</text>`);
+  // 名前（縦2倍）
+  x.push('<text height="2" em="true"/>');
+  x.push(`<text>${addSama(r.name)}${NL}</text>`);
+  x.push('<text height="1" em="false"/>');
 
-  // 日付
-  lines.push(`<text align="left"/>`);
-  lines.push(`<text>日付: ${formatDate(r.date)}${NL}</text>`);
+  x.push(`<text>${r.persons}名様${NL}</text>`);
+  x.push(`<text>--------------------------------${NL}</text>`);
 
-  // 電話
-  if(r.phone){
-    lines.push(`<text>電話: ${formatPhone(r.phone)}${NL}</text>`);
-  }
-
-  // メモ
+  x.push('<text align="left"/>');
+  x.push(`<text>日付 : ${formatDate(r.date)}${NL}</text>`);
+  if(r.phone) x.push(`<text>電話 : ${formatPhone(r.phone)}${NL}</text>`);
   if(r.memo){
-    lines.push(`<text>--------------------------------${NL}</text>`);
-    lines.push(`<text>メモ: ${r.memo}${NL}</text>`);
+    x.push(`<text>--------------------------------${NL}</text>`);
+    x.push(`<text>メモ : ${r.memo}${NL}</text>`);
   }
+  x.push(`<text>--------------------------------${NL}</text>`);
+  x.push('<text align="center"/>');
+  x.push(`<text>ご来店をお待ちしております${NL}</text>`);
+  x.push(`<text>発行: ${nowStr()}${NL}</text>`);
+  x.push(`<text>${NL}${NL}${NL}</text>`);
+  x.push('<cut type="feed"/>');
 
-  lines.push(`<text>--------------------------------${NL}</text>`);
-  lines.push(`<text align="center"/>`);
-  lines.push(`<text>ご来店をお待ちしております${NL}</text>`);
-  lines.push(`<text>発行: ${nowStr()}${NL}</text>`);
-  lines.push(`<text>${NL}${NL}${NL}</text>`);
-
-  // カット
-  lines.push(`<cut type="feed"/>`);
-
-  return `<?xml version="1.0" encoding="utf-8"?>
-<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
-${lines.join('\n')}
-</epos-print>`;
-}
-
-async function sendToPrinter(xml){
-  const url = `http://${PRINTER_IP}:${PRINTER_PORT}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`;
-  const soap = `<?xml version="1.0" encoding="utf-8"?>
-<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
-  <s:Body>
-    <epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
-      ${xml}
-    </epos-print>
-  </s:Body>
-</s:Envelope>`;
+  const epos=`<?xml version="1.0" encoding="utf-8"?><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">${x.join('')}</epos-print>`;
+  const soap=`<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body>${epos}</s:Body></s:Envelope>`;
+  const url=`http://${PRINTER_IP}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`;
 
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'SOAPAction': '""'
-      },
-      body: soap
+    const res=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'text/xml; charset=utf-8','SOAPAction':'""'},
+      body:soap
     });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    console.log('印刷成功');
+    if(res.ok){ showToast('✅ 印刷しました',2500); }
+    else { throw new Error(`HTTP ${res.status}`); }
   } catch(e) {
-    console.warn('ePOS印刷エラー:', e);
-    // フォールバック：window.print()
-    try { window.print(); } catch(e2) { console.warn('印刷スキップ:', e2); }
+    console.warn('ePOS error:',e);
+    showToast('⚠️ 印刷できませんでした',4000);
   }
 }
 
-/* 通知 */
+/* ===== 通知 ===== */
 function todayReservationAlert(){
   const today=todayStr();
-  const todayRes=state.reservations.filter(r=>r.date===today).sort((a,b)=>a.time.localeCompare(b.time));
-  if(todayRes.length===0)return;
-  const lines=todayRes.map(r=>`  ${r.time} - ${r.persons}名 ${r.name}様${r.memo?' ('+r.memo+')':''}`).join('\n');
-  alert(`【本日の予約】\n\n${lines}`);
+  const list=state.reservations.filter(r=>r.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  if(!list.length) return;
+  alert('【本日の予約】\n\n'+list.map(r=>`  ${r.time} - ${r.persons}名 ${r.name}様${r.memo?' ('+r.memo+')':''}`).join('\n'));
 }
 function checkUpcomingNotifications(){
   const now=new Date(),today=todayStr();
   state.reservations.filter(r=>r.date===today).forEach(r=>{
     const [rh,rm]=r.time.split(':').map(Number);
-    const resTime=new Date();resTime.setHours(rh,rm,0,0);
-    const diff=(resTime-now)/60000;
-    const key30=`${r.id}_30`;
-    if(diff>28&&diff<=31&&!notified[key30]){notified[key30]=true;alert(`【予約30分前】\n${r.time} - ${r.persons}名 ${r.name}様`);}
-    const key5=`${r.id}_5`;
-    if(diff>3&&diff<=6&&!notified[key5]){notified[key5]=true;alert(`【予約5分前】\n${r.time} - ${r.persons}名 ${r.name}様`);}
+    const rt=new Date();rt.setHours(rh,rm,0,0);
+    const diff=(rt-now)/60000;
+    const k30=`${r.id}_30`;
+    if(diff>28&&diff<=31&&!notified[k30]){notified[k30]=true;alert(`【予約30分前】\n${r.time} - ${r.persons}名 ${r.name}様`);}
+    const k5=`${r.id}_5`;
+    if(diff>3&&diff<=6&&!notified[k5]){notified[k5]=true;alert(`【予約5分前】\n${r.time} - ${r.persons}名 ${r.name}様`);}
   });
 }
 
-/* 初期化 */
+/* ===== 初期化 ===== */
 function init(){
   load();buildTimeOptions();
   const today=new Date();
@@ -722,7 +632,6 @@ function init(){
   setInterval(checkUpcomingNotifications,60000);
   checkUpcomingNotifications();
 }
-
 document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
